@@ -11,9 +11,20 @@ const flights = [
     'IGC/06AV2MF1_rst.igc'
 ]
 
-app.get('/', (req, res) => {
-    const flight = parser.getFlight(flights[4]);
+function asyncHandler(cb) {
+    return async (req, res, next) => {
+        try {
+            await cb(req, res, next);
+        } catch (err) {
+            res.send("error")
+        }
+    }
+}
+
+app.get('/', asyncHandler(async (req, res) => {
+    const flight = await parser.getFlight(flights[3]);
     res.json(flight);
-})
+}))
+
 
 app.listen(3000, () => console.log('VarioView listening on port 3000!'));
