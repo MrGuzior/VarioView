@@ -26,5 +26,4 @@ app.get('/', asyncHandler(async (req, res) => {
     res.json(flight);
 }))
 
-
 app.listen(3000, () => console.log('VarioView listening on port 3000!'));
