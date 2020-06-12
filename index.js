@@ -24,6 +24,16 @@ function asyncHandler(cb) {
 app.get('/', asyncHandler(async (req, res) => {
     const flight = await parser.getFlight(flights[3]);
     res.json(flight);
-}))
+}));
+
+app.get('/duration', asyncHandler(async (req, res) => {
+    const flightDuration = await parser.flightDuration(flights[3]);
+    res.json(flightDuration);
+}));
+
+app.get('/chart', asyncHandler(async (req, res) => {
+    res.sendfile('index.html');
+}));
+
 
 app.listen(3000, () => console.log('VarioView listening on port 3000!'));

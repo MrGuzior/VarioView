@@ -23,8 +23,11 @@
     "nodemon": "^2.0.4"
   },
   "dependencies": {
+    "chart.js": "^2.9.3",
+    "dygraphs": "^2.1.0",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
-    "igc-parser": "^0.5.0"
+    "igc-parser": "^0.5.0",
+    "jquery": "^3.5.1"
   }
 }
