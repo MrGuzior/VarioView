@@ -8,7 +8,8 @@ const flights = [
     'IGC/87NLNQR1_rst.igc',
     'IGC/892LNQR1_rst.igc',
     'IGC/05LLN5S1_rst.igc',
-    'IGC/06AV2MF1_rst.igc'
+    'IGC/06AV2MF1_rst.igc',
+    'IGC/0AMLNQR1.IGC'
 ]
 
 function asyncHandler(cb) {
@@ -22,13 +23,19 @@ function asyncHandler(cb) {
 }
 
 app.get('/', asyncHandler(async (req, res) => {
-    const flight = await parser.getFlight(flights[3]);
+    const flight = await parser.getFlight(flights[0]);
     res.json(flight);
 }));
 
 app.get('/duration', asyncHandler(async (req, res) => {
-    const flightDuration = await parser.flightDuration(flights[3]);
+    const flightDuration = await parser.flightDuration(flights[4]);
     res.json(flightDuration);
+}));
+
+app.get('/log-duration/:id', asyncHandler(async (req, res) => {
+
+    const logDuration = await parser.logDuration(flights[req.params.id]);
+    res.json(logDuration);
 }));
 
 app.get('/chart', asyncHandler(async (req, res) => {

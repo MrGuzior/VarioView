@@ -15,20 +15,65 @@ const timeParser = time => {
         minute: parseInt(time.match(/(?<!^)\d\d(?<!$)/)),
         second: parseInt(time.match(/\d\d$/))
     }
+}
 
+const dateParser = time => {
+    return {
+        year: parseInt(time.match(/^\d{4}/)),
+        month: parseInt(time.match(/(?<!^)(?<!\d)\d\d(?<!$)/)),
+        day: parseInt(time.match(/\d\d$/))
+    }
+}
+
+function convertMS(milliseconds) {
+    let hour, minute, seconds;
+    seconds = Math.floor(milliseconds / 1000);
+    minute = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+    hour = Math.floor(minute / 60);
+    minute = minute % 60;
+    hour = hour % 24;
+    return {
+        hour: hour,
+        minute: minute,
+        seconds: seconds
+    };
+}
+
+/* Add timezones */
+const getLogDuration = async (flight) => {
+    const flightData = await extractFlightData(flight);
+    const firstFix = timeParser(flightData.fixes[0].time);
+    const lastFix = timeParser(flightData.fixes[flightData.fixes.length - 1].time);
+    const fd = dateParser(flightData.date);
+    const firstTimestamp = new Date(fd.year, fd.month, fd.day, firstFix.hour + 2, firstFix.minute, firstFix.second);
+    const lastTimestamp = new Date(fd.year, fd.month, fd.day, lastFix.hour + 2, lastFix.minute, lastFix.second);
+
+    const logTimeDuration = new Date(lastTimestamp.getTime() - firstTimestamp.getTime());
+
+    return convertMS(logTimeDuration);
 }
 
 const getFlightDuration = async (flight) => {
+    /*
+    Get time of the whole log
+        Create a function for that?
+
+    Check for gps movement and consistant height movement
+
+    Create function for starttime
+
+    create function for laningtime
+    
+    */
     const flightData = extractFlightData(flight);
     const logFixes = await (await flightData).fixes;
-    const liftFix = logFixes.find(fix => fix.pressureAltitude >= 20);
+    const liftFix = logFixes.find(fix => fix.gpsAltitude >= 50);
     const liftTime = timeParser(liftFix.time);
 
-    const possibleLandTimes = logFixes.find(fix => liftTime.second <= timeParser(fix.time).second)
+    const possibleLandTimes = logFixes.find(fix => liftTime.minute < timeParser(fix.time).minute)
 
-    //return liftFix.time;
-    //return possibleLandTimes.time;
-    return `${liftFix.time} ${possibleLandTimes.time}`
+    return `lift: ${liftFix.time} ${liftFix.gpsAltitude}m airborn ${possibleLandTimes.time} ${possibleLandTimes.gpsAltitude}m`
 }
 
 
@@ -54,3 +99,4 @@ const createChart = (element) => {
 module.exports.getFlight = extractFlightData;
 module.exports.createChart = createChart;
 module.exports.flightDuration = getFlightDuration;
+module.exports.logDuration = getLogDuration;
