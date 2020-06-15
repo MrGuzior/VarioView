@@ -33,7 +33,6 @@ app.get('/duration', asyncHandler(async (req, res) => {
 }));
 
 app.get('/log-duration/:id', asyncHandler(async (req, res) => {
-
     const logDuration = await parser.logDuration(flights[req.params.id]);
     res.json(logDuration);
 }));

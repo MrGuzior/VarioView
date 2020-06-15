@@ -3,8 +3,8 @@ const fs = require('fs');
 const Chart = require('chart.js');
 
 const extractFlightData = async (path) => {
-    const rawFlight = await fs.readFileSync(path, 'utf8');
-    const flightData = await IGCparser.parse(rawFlight);
+    const rawFlight = fs.readFileSync(path, 'utf8');
+    const flightData = IGCparser.parse(rawFlight);
 
     return flightData;
 };
@@ -40,15 +40,27 @@ function convertMS(milliseconds) {
     };
 }
 
-/* Add timezones */
-const getLogDuration = async (flight) => {
+const getLogStartTime = async (flight) => {
     const flightData = await extractFlightData(flight);
     const firstFix = timeParser(flightData.fixes[0].time);
+    const fd = dateParser(flightData.date);
+
+    return new Date(fd.year, fd.month, fd.day, firstFix.hour + 2, firstFix.minute, firstFix.second);
+}
+
+const getLogFinalTime = async (flight) => {
+    const flightData = await extractFlightData(flight);
     const lastFix = timeParser(flightData.fixes[flightData.fixes.length - 1].time);
     const fd = dateParser(flightData.date);
-    const firstTimestamp = new Date(fd.year, fd.month, fd.day, firstFix.hour + 2, firstFix.minute, firstFix.second);
-    const lastTimestamp = new Date(fd.year, fd.month, fd.day, lastFix.hour + 2, lastFix.minute, lastFix.second);
 
+    return new Date(fd.year, fd.month, fd.day, lastFix.hour + 2, lastFix.minute, lastFix.second);
+}
+
+
+/* Add timezones */
+const getLogDuration = async (flight) => {
+    const lastTimestamp = await getLogFinalTime(flight);
+    const firstTimestamp = await getLogStartTime(flight);
     const logTimeDuration = new Date(lastTimestamp.getTime() - firstTimestamp.getTime());
 
     return convertMS(logTimeDuration);
@@ -56,8 +68,6 @@ const getLogDuration = async (flight) => {
 
 const getFlightDuration = async (flight) => {
     /*
-    Get time of the whole log
-        Create a function for that?
 
     Check for gps movement and consistant height movement
 
@@ -67,7 +77,7 @@ const getFlightDuration = async (flight) => {
     
     */
     const flightData = extractFlightData(flight);
-    const logFixes = await (await flightData).fixes;
+    const logFixes = (await flightData).fixes;
     const liftFix = logFixes.find(fix => fix.gpsAltitude >= 50);
     const liftTime = timeParser(liftFix.time);
 
