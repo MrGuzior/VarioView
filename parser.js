@@ -56,8 +56,6 @@ const getLogFinalTime = async (flight) => {
     return new Date(fd.year, fd.month, fd.day, lastFix.hour + 2, lastFix.minute, lastFix.second);
 }
 
-
-/* Add timezones */
 const getLogDuration = async (flight) => {
     const lastTimestamp = await getLogFinalTime(flight);
     const firstTimestamp = await getLogStartTime(flight);
@@ -88,7 +86,8 @@ const getFlightDuration = async (flight) => {
 
 
 const getFlightTask = async (flight) => {
-    // Return flight task
+    const flightData = extractFlightData(flight);
+    return (await flightData).task
 }
 
 const createChart = (element) => {
@@ -110,3 +109,4 @@ module.exports.getFlight = extractFlightData;
 module.exports.createChart = createChart;
 module.exports.flightDuration = getFlightDuration;
 module.exports.logDuration = getLogDuration;
+module.exports.getTask = getFlightTask;

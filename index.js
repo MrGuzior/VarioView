@@ -3,6 +3,7 @@ const parser = require('./parser.js');
 
 const app = express();
 
+
 const flights = [
     'IGC/86ULNQR2_rst.igc',
     'IGC/87NLNQR1_rst.igc',
@@ -22,9 +23,15 @@ function asyncHandler(cb) {
     }
 }
 
-app.get('/', asyncHandler(async (req, res) => {
-    const flight = await parser.getFlight(flights[0]);
+
+
+app.get('/:id', asyncHandler(async (req, res) => {
+    const flight = await parser.getFlight(flights[req.params.id]);
     res.json(flight);
+}));
+
+app.get('/', asyncHandler(async (req, res) => {
+    res.sendFile('./public/index.html');
 }));
 
 app.get('/duration', asyncHandler(async (req, res) => {
@@ -35,6 +42,11 @@ app.get('/duration', asyncHandler(async (req, res) => {
 app.get('/log-duration/:id', asyncHandler(async (req, res) => {
     const logDuration = await parser.logDuration(flights[req.params.id]);
     res.json(logDuration);
+}));
+
+app.get('/task/:id', asyncHandler(async (req, res) => {
+    const flightTask = await parser.getTask(flights[req.params.id]);
+    res.json(flightTask);
 }));
 
 app.get('/chart', asyncHandler(async (req, res) => {
